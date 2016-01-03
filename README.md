@@ -1,2 +1,3 @@
-# templates
-Personal code templates &amp; examples
+# Templates
+
+Personal code templates &amp; examples.
