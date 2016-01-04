@@ -3,12 +3,18 @@ set -o pipefail # Fail if any prat of a pipe fails
 set -e  # Fail on failing commands
 set -u  # Fail on unset variable
 
+# If you require root, make the caller run with sudo
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root, use sudo" 1>&2
+   exit 1
+fi
+
 # Declare "globals", especially if they're used in the help
 option="default";
 
 # Helper to write to stderr
 err() {
-    echo >&2 "$@"
+    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
 }
 
 # Output usage
