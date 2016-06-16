@@ -1,20 +1,18 @@
 #!/bin/bash
-set -o pipefail # Fail if any prat of a pipe fails
-set -e  # Fail on failing commands
-set -u  # Fail on unset variable
 
-# If you require root, make the caller run with sudo
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root, use sudo" 1>&2
-   exit 1
-fi
+# Script documentation
+
+# Options, see http://www.tldp.org/LDP/abs/html/options.html for list.  Some ones you almost always want
+set -e  # Fail on failing commands
+set -o pipefail # Fail if any part of a pipe fails
+set -u  # Fail on unset variable, prevents 'rm -Rf $missing/*' errors
 
 # Declare "globals", especially if they're used in the help
 option="default";
 
-# Helper to write to stderr
+# Helper to log to stderr
 err() {
-    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+    echo >&2 "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@"
 }
 
 # Output usage
@@ -54,7 +52,29 @@ if (( $# != 1 )); then
     exit 1
 fi
 
-# Random logic
+# If you require root, make the caller run with sudo, don't use SUID or SGID
+if [[ $EUID -ne 0 ]]; then
+   echo >&2 "This script must be run as root, use sudo"
+   exit 1
+fi
 
-# Example of trapping
-trap 'echo exiting' HUP INT QUIT TERM EXIT
+# The rest of your script
+
+## Some random tips
+
+# Use -- before user provided positional args so they're not intepreted as command flags
+cat -- "$1"
+
+# Use '[[ ... ]]' for conditionals (instead of '[ ... ]' or 'test'), the former don't expand
+# pathnames and allow regexs.
+
+# Use mktemp for temporary files, especially with trap (below) for clean-up
+filename=$(mktemp)
+echo >$filename 'Whatever'
+
+# Trap to perform cleanup on signals
+cleanup() {
+    echo 'cleaning up!'
+    rm -f $file
+}
+trap cleanup HUP INT QUIT TERM EXIT
