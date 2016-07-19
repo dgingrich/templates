@@ -7,8 +7,9 @@ set -e  # Fail on failing commands
 set -o pipefail # Fail if any part of a pipe fails
 set -u  # Fail on unset variable, prevents 'rm -Rf $missing/*' errors
 
-# Declare "globals", especially if they're used in the help
-option=${1:-default};
+# Declare "globals", especially if theyr'e used in the usage or cmdline parsing.  See below for
+# alternate cli parsing/defaults for small scripts.
+options="default"
 
 # Helper to log to stderr
 err() {
@@ -51,6 +52,14 @@ if (( $# != 1 )); then
     usage
     exit 1
 fi
+
+# For small scripts, it is easier to explicitly read out positional args w/ defaults:
+option=${1:-default}
+
+# An alternate notation updates a variable in place if it's not set, though generally the above is
+# easier.
+$options=$1
+: ${options:=default}   # Leading ':' prevents bash from evaluating the line
 
 # If you require root, make the caller run with sudo, don't use SUID or SGID
 if [[ $EUID -ne 0 ]]; then
