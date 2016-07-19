@@ -8,7 +8,7 @@ set -o pipefail # Fail if any part of a pipe fails
 set -u  # Fail on unset variable, prevents 'rm -Rf $missing/*' errors
 
 # Declare "globals", especially if they're used in the help
-option="default";
+option=${1:-default};
 
 # Helper to log to stderr
 err() {
@@ -64,6 +64,10 @@ fi
 
 # Use -- before user provided positional args so they're not intepreted as command flags
 cat -- "$1"
+
+# Use umask to avoid race conditions on secret files, though this is also hackable, see
+# https://developer.apple.com/library/mac/documentation/OpenSource/Conceptual/ShellScripting/ShellScriptSecurity/ShellScriptSecurity.html
+(umask 0177 && echo secret > secret.txt)
 
 # Use '[[ ... ]]' for conditionals (instead of '[ ... ]' or 'test'), the former don't expand
 # pathnames and allow regexs.
