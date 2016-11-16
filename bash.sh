@@ -88,6 +88,6 @@ echo >$filename 'Whatever'
 # Trap to perform cleanup on signals
 cleanup() {
     echo 'cleaning up!'
-    rm -f $file
+    rm -f $filename
 }
 trap cleanup HUP INT QUIT TERM EXIT
