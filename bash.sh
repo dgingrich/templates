@@ -81,9 +81,8 @@ cat -- "$1"
 # Use '[[ ... ]]' for conditionals (instead of '[ ... ]' or 'test'), the former don't expand
 # pathnames and allow regexs.
 
-# Use mktemp for temporary files, especially with trap (below) for clean-up
+# Use mktemp for temporary files, use trap to cleanup
 filename=$(mktemp)
-echo >$filename 'Whatever'
 
 # Trap to perform cleanup on signals
 cleanup() {
@@ -91,3 +90,5 @@ cleanup() {
     rm -f $filename
 }
 trap cleanup HUP INT QUIT TERM EXIT
+
+echo >$filename 'Whatever'
